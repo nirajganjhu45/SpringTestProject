@@ -15,6 +15,10 @@
  */
 package org.springframework.samples.petclinic.owner;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.springframework.samples.petclinic.model.NamedEntity;
 
 import jakarta.persistence.Entity;
@@ -23,6 +27,9 @@ import jakarta.persistence.Table;
 /**
  * @author Juergen Hoeller Can be Cat, Dog, Hamster...
  */
+@Getter
+@Setter
+@AllArgsConstructor
 @Entity
 @Table(name = "types")
 public class PetType extends NamedEntity {

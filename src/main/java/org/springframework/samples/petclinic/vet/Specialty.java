@@ -15,6 +15,10 @@
  */
 package org.springframework.samples.petclinic.vet;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.springframework.samples.petclinic.model.NamedEntity;
 
 import jakarta.persistence.Entity;
@@ -25,6 +29,9 @@ import jakarta.persistence.Table;
  *
  * @author Juergen Hoeller
  */
+@Getter
+@Setter
+@AllArgsConstructor
 @Entity
 @Table(name = "specialties")
 public class Specialty extends NamedEntity {
