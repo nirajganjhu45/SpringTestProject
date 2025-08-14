@@ -1,0 +1,74 @@
+# cloudbuild.yaml11
+
+steps:
+  # STEP 1: Build the Java Application
+  - name: 'maven:3.8.5-openjdk-17'
+    id: 'Build Application'
+    entrypoint: 'mvn'
+    args: ['clean','package', '-DskipTests']
+    volumes:
+      - name: 'm2-cache'
+        path: '/root/.m2'
+
+  # STEP 2: Build the container image with an explicit name
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'Build Container Image'
+    args:
+      - 'build'
+      # The image name is now explicit and not dependent on trigger variables
+      - '-t'
+      - 'europe-west4-docker.pkg.dev/$_PROJECT_ID_TO_DEPLOY_TO/gorilla-clinic-images/gorilla-clinic:$COMMIT_SHA'
+      - '.'
+    wait_for: ['Build Application']
+    volumes:
+      - name: 'm2-cache'
+        path: '/root/.m2'
+
+
+  # STEP 3: Push the single container image to the European Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'Push Container Image'
+    args:
+      - 'push'
+      - 'europe-west4-docker.pkg.dev/$_PROJECT_ID_TO_DEPLOY_TO/gorilla-clinic-images/gorilla-clinic:$COMMIT_SHA'
+    wait_for: ['Build Container Image']
+
+  # =========================================================
+  # STEP 4: DEPLOY TO EUROPE-WEST4
+  # =========================================================
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    id: 'Deploy to europe-west4'
+    entrypoint: gcloud
+    args:
+      - 'run'
+      - 'deploy'
+      - 'gorilla-clinic-europe-west4'
+      - '--image=europe-west4-docker.pkg.dev/$_PROJECT_ID_TO_DEPLOY_TO/gorilla-clinic-images/gorilla-clinic:$COMMIT_SHA'
+      - '--region=europe-west4'
+      - '--project=$_PROJECT_ID_TO_DEPLOY_TO'
+      - '--service-account=gorilla-clinic-sa@$_PROJECT_ID_TO_DEPLOY_TO.iam.gserviceaccount.com'
+    wait_for: ['Push Container Image']
+
+  # =========================================================
+  # STEP 5: DEPLOY TO US-CENTRAL1
+  # =========================================================
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    id: 'Deploy to us-central1'
+    entrypoint: gcloud
+    args:
+      - 'run'
+      - 'deploy'
+      - 'gorilla-clinic-us-central1'
+      - '--image=europe-west4-docker.pkg.dev/$_PROJECT_ID_TO_DEPLOY_TO/gorilla-clinic-images/gorilla-clinic:$COMMIT_SHA'
+      - '--region=us-central1'
+      - '--project=$_PROJECT_ID_TO_DEPLOY_TO'
+      - '--service-account=gorilla-clinic-sa@$_PROJECT_ID_TO_DEPLOY_TO.iam.gserviceaccount.com'
+    wait_for: ['Push Container Image']
+
+# The `images` block is not strictly necessary but can speed up subsequent builds.
+# It should also use an explicit image name.
+images:
+  - 'europe-west4-docker.pkg.dev/$_PROJECT_ID_TO_DEPLOY_TO/gorilla-clinic-images/gorilla-clinic:$COMMIT_SHA'
+
+options:
+  logging: CLOUD_LOGGING_ONLY
