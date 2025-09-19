@@ -1,0 +1,37 @@
+name: "same workflow"
+on:
+  pull_request:   
+        branches: 
+            main
+jobs:
+    job1:
+        runs-on: ubuntu-latest
+        strategy:
+          fail-fast: false
+          matrix:
+            java : [17 , 21]
+            
+        steps:
+            - name: copy code using actions
+              uses: actions/checkout@v5
+            - name: setup jdk
+              uses:  actions/setup-java@v5
+              with:
+                distribution: 'temurin'
+                java-version: ${{ matrix.java }}
+                cache: maven
+            - name: setup jre
+              run: mvn package
+            - name: run tests
+              uses: EnricoMi/publish-unit-test-result-action@v2
+              with:
+                files: | 
+                    target/surefire-reports/*.xml
+            - name: package application for testers
+              uses: actions/upload-artifact@v4
+              with:
+                name: app-java-${{matrix.java}}
+                path: "**/target/*.jar"
+              
+
+            
