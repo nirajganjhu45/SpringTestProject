@@ -58,12 +58,14 @@ public class Vet extends Person {
 
 	@XmlElement
 	public List<Specialty> getSpecialties() {
+		// This is safe because we return a copy
 		return getSpecialtiesInternal().stream()
 			.sorted(Comparator.comparing(NamedEntity::getName))
 			.collect(Collectors.toList());
 	}
 
 	public int getNrOfSpecialties() {
+		// This method is for the convenience of unit tests
 		return getSpecialtiesInternal().size();
 	}
 

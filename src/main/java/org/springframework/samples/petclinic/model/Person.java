@@ -31,6 +31,12 @@ public class Person extends BaseEntity {
 	@NotBlank
 	private String firstName;
 
+	@Column(name = "middle_name") // <-- ADD THIS LINE
+    private String middleName;
+
+	@Column(name = "mother_name") // <-- ADD THIS LINE
+    private String mothername;
+
 	@Column(name = "last_name")
 	@NotBlank
 	private String lastName;
@@ -49,6 +55,22 @@ public class Person extends BaseEntity {
 
 	public void setLastName(String lastName) {
 		this.lastName = lastName;
+	}
+
+	public void setMiddleName(String middleName) {
+		this.middleName = middleName;
+	}
+
+	public String getMiddleName() {
+		return this.middleName;
+	}
+
+	public void setMotherName(String motherName) {
+		this.motherName = motherName;
+	}
+
+	public String getMotherName() {
+		return this.motherName;
 	}
 
 }
