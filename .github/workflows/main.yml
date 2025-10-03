@@ -15,7 +15,7 @@ jobs:
                 distribution: 'temurin'
                 java-version: '21'
           - name: build package
-            run: mvn ${{ vars.GOAL  }}
+            run: mvn clean package
           - name: publish test results
             uses: EnricoMi/publish-unit-test-result-action@v2
             with:

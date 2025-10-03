@@ -2,7 +2,7 @@ name: Manual maven steps for ci
 on:
     pull_request:
       branches: 
-        - main
+          - main
     workflow_dispatch:
 
 jobs:
@@ -15,9 +15,5 @@ jobs:
                 distribution: 'temurin'
                 java-version: '21'
           - name: build package
-            run: mvn ${{ vars.GOAL  }}
-          - name: publish test results
-            uses: EnricoMi/publish-unit-test-result-action@v2
-            with:
-              files: |
-                **/target/surefire-reports/*.xml
+            run: mvn ${{ vars.GOAL }}
+          
